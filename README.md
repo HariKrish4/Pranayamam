@@ -1,50 +1,64 @@
-# Welcome to your Expo app 👋
+# Pranayamam - Mindful Breathing App 🧘‍♂️
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A guided breathing application built with Expo that helps users practice the 4-7-8 breathing technique for relaxation and stress reduction.
 
-## Get started
+## Features
+
+### Breathing Exercise
+- **4-7-8 Breathing Pattern**
+  - Inhale for 4 seconds through nose
+  - Hold breath for 7 seconds
+  - Exhale for 8 seconds through mouth
+
+### Customization
+- Session duration (1-10 minutes)
+- Cue sound options
+- Background music selection
+
+### Progress Tracking
+- Total minutes practiced
+- Daily streak counter
+- Total breaths completed
+
+### User Experience
+- Visual breathing phase indicators
+- Timer-based guidance
+- Dark theme UI with calming green aesthetics
+- Simple and intuitive interface
+
+## Getting Started
 
 1. Install dependencies
-
    ```bash
    npm install
    ```
 
 2. Start the app
-
    ```bash
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+## Technology Stack
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- React Native
+- Expo
+- File-based routing
+- Custom animations and timers
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Development
 
-## Get a fresh project
+The app uses a modular structure with the following key components:
+- Home screen with exercise configuration
+- Detailed instructions view
+- Interactive exercise screen with visual guidance
+- Progress tracking and statistics
 
-When you're ready, run:
+## Contributing
 
-```bash
-npm run reset-project
-```
+Feel free to submit issues and enhancement requests.
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Learn More
 
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+To learn more about the technologies used in this project:
+- [Expo documentation](https://docs.expo.dev/)
+-
