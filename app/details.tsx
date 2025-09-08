@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -5,6 +6,19 @@ import { Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 
 export default function DetailsScreen() {
     const router = useRouter();
     const [showInstructions, setShowInstructions] = useState(true);
+
+    const handleCheckbox = async () => {
+        const newValue = !showInstructions;
+        setShowInstructions(newValue);
+        await AsyncStorage.setItem('skipInstructions', newValue ? 'false' : 'true');
+    };
+
+    const handleStart = async () => {
+        if (!showInstructions) {
+            await AsyncStorage.setItem('skipInstructions', 'true');
+        }
+        router.push('/exercise');
+    };
 
     return (
         <View style={styles.container}>
@@ -52,11 +66,11 @@ export default function DetailsScreen() {
                 <View style={styles.checkboxContainer}>
                     <Pressable
                         style={styles.checkbox}
-                        onPress={() => setShowInstructions(!showInstructions)}
+                        onPress={handleCheckbox}
                     >
-                        {showInstructions && <Text style={styles.checkboxInner}>✓</Text>}
+                        {!showInstructions && <Text style={styles.checkboxInner}>✓</Text>}
                     </Pressable>
-                    <Text style={styles.checkboxLabel}>Don't show these instructions again</Text>
+                    <Text style={styles.checkboxLabel}>Don&apos;t show these instructions again</Text>
                 </View>
 
                 <View style={styles.buttonContainer}>
@@ -68,10 +82,7 @@ export default function DetailsScreen() {
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={[styles.button, styles.startButton]}
-                        onPress={() => {
-                            // Handle start exercise
-                            router.push('/exercise');
-                        }}
+                        onPress={handleStart}
                     >
                         <Text style={[styles.buttonText, styles.startButtonText]}>Start Exercise →</Text>
                     </TouchableOpacity>
