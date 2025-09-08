@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -6,6 +7,10 @@ export default function ExerciseScreen() {
     const router = useRouter();
     const [phase, setPhase] = useState('inhale');
     const [count, setCount] = useState(4);
+    const [breathCycles, setBreathCycles] = useState(0);
+
+    // Track session start time
+    const [sessionStart] = useState(Date.now());
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -17,13 +22,14 @@ export default function ExerciseScreen() {
                     switch (phase) {
                         case 'inhale':
                             setPhase('hold');
-                            return 7; // Hold duration
+                            return 7;
                         case 'hold':
                             setPhase('exhale');
-                            return 8; // Exhale duration
+                            return 8;
                         case 'exhale':
                             setPhase('inhale');
-                            return 4; // Inhale duration
+                            setBreathCycles((prev) => prev + 1); // Count completed breath
+                            return 4;
                         default:
                             return 4;
                     }
@@ -33,6 +39,28 @@ export default function ExerciseScreen() {
 
         return () => clearInterval(timer);
     }, [phase]);
+
+    // Update stats when user stops exercise
+    const handleStop = async () => {
+        const sessionEnd = Date.now();
+        const sessionMinutes = Math.round((sessionEnd - sessionStart) / 60000) || 1;
+        // Update total minutes
+        const prevMinutes = parseInt(await AsyncStorage.getItem('totalMinutes') || '0', 10);
+        await AsyncStorage.setItem('totalMinutes', String(prevMinutes + sessionMinutes));
+        // Update total breaths
+        const prevBreaths = parseInt(await AsyncStorage.getItem('totalBreaths') || '0', 10);
+        await AsyncStorage.setItem('totalBreaths', String(prevBreaths + breathCycles));
+        // Update day streak
+        const today = new Date().toISOString().slice(0, 10);
+        const lastSessionDay = await AsyncStorage.getItem('lastSessionDay');
+        let streak = parseInt(await AsyncStorage.getItem('dayStreak') || '0', 10);
+        if (lastSessionDay !== today) {
+            streak = streak + 1;
+            await AsyncStorage.setItem('dayStreak', String(streak));
+            await AsyncStorage.setItem('lastSessionDay', today);
+        }
+        router.back();
+    };
 
     const getInstructions = () => {
         switch (phase) {
@@ -67,7 +95,7 @@ export default function ExerciseScreen() {
 
             <TouchableOpacity
                 style={styles.stopButton}
-                onPress={() => router.back()}
+                onPress={handleStop}
             >
                 <Text style={styles.stopButtonText}>Stop Exercise</Text>
             </TouchableOpacity>
