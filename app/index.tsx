@@ -1,10 +1,45 @@
-import { useRouter } from 'expo-router';
-import { useState } from 'react';
-import { Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useEffect, useState } from 'react';
+import { Modal, Pressable, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 
 export default function Index() {
   const router = useRouter();
   const [duration, setDuration] = useState(2);
+  const [skipDetails, setSkipDetails] = useState(false);
+  const [cueSound, setCueSound] = useState('Crystal Bowl Ping');
+  const [music, setMusic] = useState('Cosmic Waves');
+  const [soundModalVisible, setSoundModalVisible] = useState(false);
+  const [musicModalVisible, setMusicModalVisible] = useState(false);
+  const [totalMinutes, setTotalMinutes] = useState(0);
+  const [dayStreak, setDayStreak] = useState(0);
+  const [totalBreaths, setTotalBreaths] = useState(0);
+
+  const cueSoundOptions = ['Crystal Bowl Ping', 'Bell', 'Wood Block'];
+  const musicOptions = ['Cosmic Waves', 'Forest Stream', 'Silent'];
+
+  useEffect(() => {
+    AsyncStorage.getItem('skipInstructions').then(val => {
+      setSkipDetails(val === 'true');
+    });
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      // Load stats
+      AsyncStorage.getItem('totalMinutes').then(val => setTotalMinutes(val ? parseInt(val, 10) : 0));
+      AsyncStorage.getItem('dayStreak').then(val => setDayStreak(val ? parseInt(val, 10) : 0));
+      AsyncStorage.getItem('totalBreaths').then(val => setTotalBreaths(val ? parseInt(val, 10) : 0));
+    }, [])
+  );
+
+  const handleStart = () => {
+    if (skipDetails) {
+      router.push('/exercise');
+    } else {
+      router.push('/details');
+    }
+  };
 
   const decreaseDuration = () => {
     if (duration > 1) {
@@ -47,8 +82,11 @@ export default function Index() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Cue Sound</Text>
           <View style={styles.optionContainer}>
-            <Text style={styles.optionText}>Crystal Bowl Ping</Text>
-            <Pressable style={styles.dropdownButton}>
+            <Text style={styles.optionText}>{cueSound}</Text>
+            <Pressable
+              style={styles.dropdownButton}
+              onPress={() => setSoundModalVisible(true)}
+            >
               <Text style={styles.dropdownText}>▼</Text>
             </Pressable>
           </View>
@@ -57,18 +95,103 @@ export default function Index() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Background Music</Text>
           <View style={styles.optionContainer}>
-            <Text style={styles.optionText}>Cosmic Waves</Text>
-            <Pressable style={styles.dropdownButton}>
+            <Text style={styles.optionText}>{music}</Text>
+            <Pressable
+              style={styles.dropdownButton}
+              onPress={() => setMusicModalVisible(true)}
+            >
               <Text style={styles.dropdownText}>▼</Text>
             </Pressable>
           </View>
         </View>
 
+        {/* Cue Sound Modal */}
+        <Modal
+          transparent
+          visible={soundModalVisible}
+          animationType="fade"
+        >
+          <TouchableWithoutFeedback onPress={() => setSoundModalVisible(false)}>
+            <View style={{
+              flex: 1,
+              backgroundColor: 'rgba(0,0,0,0.5)',
+              justifyContent: 'center',
+              alignItems: 'center'
+            }}>
+              <View style={{
+                backgroundColor: '#011303ff',
+                borderRadius: 16,
+                padding: 20,
+                minWidth: 250
+              }}>
+                {cueSoundOptions.map(option => (
+                  <Pressable
+                    key={option}
+                    style={{ padding: 12 }}
+                    onPress={() => {
+                      setCueSound(option);
+                      setSoundModalVisible(false);
+                    }}
+                  >
+                    <Text style={{
+                      color: '#fff',
+                      fontSize: 18,
+                      fontWeight: cueSound === option ? 'bold' : 'normal'
+                    }}>
+                      {option}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+          </TouchableWithoutFeedback>
+        </Modal>
+
+        {/* Music Modal */}
+        <Modal
+          transparent
+          visible={musicModalVisible}
+          animationType="fade"
+        >
+          <TouchableWithoutFeedback onPress={() => setMusicModalVisible(false)}>
+            <View style={{
+              flex: 1,
+              backgroundColor: 'rgba(0,0,0,0.5)',
+              justifyContent: 'center',
+              alignItems: 'center'
+            }}>
+              <View style={{
+                backgroundColor: '#011303ff',
+                borderRadius: 16,
+                padding: 20,
+                minWidth: 250
+              }}>
+                {musicOptions.map(option => (
+                  <Pressable
+                    key={option}
+                    style={{ padding: 12 }}
+                    onPress={() => {
+                      setMusic(option);
+                      setMusicModalVisible(false);
+                    }}
+                  >
+                    <Text style={{
+                      color: '#fff',
+                      fontSize: 18,
+                      fontWeight: music === option ? 'bold' : 'normal'
+                    }}>
+                      {option}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+          </TouchableWithoutFeedback>
+        </Modal>
+
         <TouchableOpacity
           style={styles.startButton}
-          onPress={() => {
-            router.push('/details');
-          }}
+          onPress={handleStart}
         >
           <Text style={styles.startButtonText}>Start</Text>
         </TouchableOpacity>
@@ -76,15 +199,15 @@ export default function Index() {
         <View style={styles.statsContainer}>
           <View style={styles.statItem}>
             <Text style={styles.statTitle}>Total Minutes</Text>
-            <Text style={styles.statValue}>0</Text>
+            <Text style={styles.statValue}>{totalMinutes}</Text>
           </View>
           <View style={[styles.statItem, styles.statBorder]}>
             <Text style={styles.statTitle}>Day Streak</Text>
-            <Text style={styles.statValue}>0</Text>
+            <Text style={styles.statValue}>{dayStreak}</Text>
           </View>
           <View style={styles.statItem}>
             <Text style={styles.statTitle}>Total Breaths</Text>
-            <Text style={styles.statValue}>0</Text>
+            <Text style={styles.statValue}>{totalBreaths}</Text>
           </View>
         </View>
       </View>
